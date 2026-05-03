@@ -19,28 +19,28 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleLogin() {
-    try {
-      setLoading(true);
-      setError('');
+async function handleLogin() {
+  try {
+    setLoading(true);
+    setError('');
 
-      const { access_token } = await login(email, password);
+    console.log('LOGIN DATA:', { email, password }); // 👈 ADICIONA ISSO
 
-      // 🔐 Salva token
-      localStorage.setItem('access_token', access_token);
+    await login(email, password);
 
-      // ➡️ Redireciona para área logada
-      router.push('/dashboard');
-    } catch (err) {
-      setError('E-mail ou senha inválidos');
-    } finally {
-      setLoading(false);
-    }
+    router.push('/dashboard/inbox');
+
+  } catch (err) {
+    console.error('Erro login:', err);
+    setError('E-mail ou senha inválidos');
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <AuthLayout>
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md animate-fadeIn-delay">
         <h1 className="text-xl font-semibold text-gray-800 text-center mb-1">
           Bem-vindo de volta!
         </h1>
@@ -63,6 +63,7 @@ export default function LoginPage() {
             icon={<Mail size={18} />}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <div>
@@ -73,6 +74,7 @@ export default function LoginPage() {
               icon={<Lock size={18} />}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
 
             <div className="text-right mt-1">

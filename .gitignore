@@ -1,3 +1,19 @@
+# Next.js
+.next/
+
+# WhatsApp (ESSENCIAL)
+backend/.wwebjs_auth/
+backend/.wwebjs_cache/
+
+# Prisma
+backend/prisma/migrations/
+
+# Outros gerados
+backend/next
+frontend/next
+frontend/frontend@0.1.0
+backend/frontend@0.1.0
+
 # Node
 node_modules/
 

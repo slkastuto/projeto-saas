@@ -7,14 +7,46 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Company {
-  id        String   @id @default(uuid())
-  name      String
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
 
-  users     User[]
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum ConversationStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+//////////////////////////////////////////////////////
+// MODELS
+//////////////////////////////////////////////////////
+
+model Company {
+  id                String   @id @default(uuid())
+  name              String
+  slug              String   @unique
+
+  // Controle WhatsApp
+  whatsappConnected Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  users             User[]
+  conversations     Conversation[]
+  tags              Tag[]
 }
 
 model User {
@@ -31,7 +63,47 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-enum UserRole {
-  ADMIN
-  USER
+model Conversation {
+  id        String             @id @default(uuid())
+  contact   String
+  name      String?
+  avatarUrl String?
+  isSaved   Boolean            @default(false)
+
+  status    ConversationStatus @default(OPEN)
+
+  companyId String
+  company   Company            @relation(fields: [companyId], references: [id])
+
+  messages  Message[]
+  tags      Tag[]              @relation("ConversationTags")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id             String        @id @default(uuid())
+  whatsappId     String?       @unique
+  body           String
+  fromMe         Boolean       @default(false)
+  status         MessageStatus @default(SENT)
+  readAt         DateTime?
+  conversationId String
+  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  createdAt      DateTime @default(now())
+}
+
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String
+  color     String?  // já vamos deixar pronto para UI
+
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  conversations Conversation[] @relation("ConversationTags")
+
+  createdAt DateTime @default(now())
 }

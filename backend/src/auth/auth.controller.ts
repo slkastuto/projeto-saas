@@ -5,7 +5,11 @@ import {
   Get,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
+
+import type { Response } from 'express';
+
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -21,17 +25,35 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() body: LoginDto) {
-    return this.authService.login(body.email, body.password);
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { access_token } = await this.authService.login(
+      dto.email,
+      dto.password,
+    );
+
+res.cookie('access_token', access_token, {
+  httpOnly: true,
+  secure: false,          // dev
+  sameSite: 'lax',        // correto para localhost
+  path: '/',              // 🔥 MUITO IMPORTANTE
+  maxAge: 1000 * 60 * 60 * 24,
+});
+
+    return { success: true };
   }
 
-  // 🔐 ROTA PROTEGIDA DE TESTE
-  @Get('me')
   @UseGuards(JwtAuthGuard)
+  @Get('me')
   me(@Req() req: any) {
-    return {
-      message: 'Acesso autorizado',
-      user: req.user,
-    };
+    return req.user;
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    return { success: true };
   }
 }

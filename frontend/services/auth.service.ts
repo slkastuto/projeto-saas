@@ -1,35 +1,36 @@
 import { api } from './api';
 
-// ======================
 // LOGIN
-// ======================
 export async function login(email: string, password: string) {
-  const response = await api.post('/auth/login', {
-    email,
-    password,
-  });
+  const response = await api.post(
+    '/auth/login',
+    { email, password },
+    { withCredentials: true }
+  );
 
-  return response.data as {
-    access_token: string;
-  };
+  return response.data;
 }
 
-// ======================
-// REGISTER (MODELO 3)
-// ======================
+// REGISTER
 export async function register(
   name: string,
   email: string,
   password: string,
 ) {
-  const response = await api.post('/auth/register', {
-    name,
-    email,
-    password,
+  const response = await api.post(
+    '/auth/register',
+    { name, email, password },
+    { withCredentials: true }
+  );
+
+  return response.data;
+}
+
+// ME
+export async function getMe() {
+  const response = await api.get('/auth/me', {
+    withCredentials: true,
   });
 
-  return response.data as {
-    message: string;
-    userId: string;
-  };
+  return response.data;
 }
